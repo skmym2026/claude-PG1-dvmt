@@ -1,20 +1,150 @@
-# CWH Configuration for Version 3.0
+# =============================================================================
+# CWH統合型バックテストシステム v3.0 - パラメータ設定
+# =============================================================================
 
-# Date and Time of Configuration
-current_date: "2026-03-29 21:55:11"
+system:
+  version: "3.0"
+  created_date: "2026-03-29"
+  environment: "Intel Core i3"
+  timezone: "Asia/Tokyo"
 
-# Parameter Settings
-parameter_settings:
-  - name: setting_one
-    value: "default_value_one"
-  - name: setting_two
-    value: "default_value_two"
-  - name: setting_three
-    value: "default_value_three"
-  - name: setting_four
-    value: "default_value_four"
-  - name: setting_five
-    value: "default_value_five" 
-  # Add more settings as required
+data:
+  source: "yfinance"
+  region: "Japan"
+  backtest_start: "2020-01-01"
+  backtest_end: "2026-03-29"
+  cache_dir: "./data/"
 
-# Add additional configurations as necessary.
+screener:
+  # 条件1：事前上昇トレンド
+  prior_trend_min: 0.25           # R_prior >= 25%
+  prior_trend_bars: 45            # 45営業日確認ウィンドウ
+
+  # 条件2：カップ深さ
+  cup_depth_min: 0.15             # D_cup の下限（15%）
+  cup_depth_max: 0.35             # D_cup の上限（35%）
+
+  # 条件3：カップ長さ
+  cup_bars_min: 25                # N_cup の最小値（25営業日）
+
+  # 条件4：ハンドル深さ
+  handle_depth_min: 0.05          # D_handle の下限（5%）
+  handle_depth_max: 0.15          # D_handle の上限（15%）
+
+  # 条件5：ハンドル長さ
+  handle_bars_min: 4              # N_handle の最小値（4営業日）
+  handle_bars_max: 25             # N_handle の最大値（25営業日）
+
+  # 条件6：ハンドル中の出来高縮小
+  handle_volume_ratio: 0.90       # V_handle < 0.90 x V_cup
+
+  # 条件7：左右リムの対称性
+  rim_symmetry_max: 0.15          # S_rim <= 15%
+
+  # 条件8：50日移動平均線
+  ma_period: 50                   # MA_50 の期間
+
+  # 条件9：ピボット有効性
+  pivot_tolerance: 0.10           # E_pivot <= 10%
+
+  # 条件10：ブレイクアウト出来高急増
+  breakout_volume_ratio: 1.5      # V(PV) >= 1.5 x V_20
+  breakout_volume_period: 20      # 20営業日移動平均
+
+patterns:
+  # C-NH（ハンドル無し）
+  c_nh_handle_bars_max: 3         # N_handle < 4 のものを C-NH と判定
+
+  # C-SH（浅いハンドル）
+  c_sh_handle_depth_max: 0.10     # D_handle < 10% のものを C-SH と判定
+
+backtest:
+  # エントリー条件
+  entry_price_margin: 0.03        # 1.03倍マージン（3%）
+  entry_volume_ratio: 1.5         # V_t >= 1.5 x V_25
+  entry_volume_period: 25         # 25営業日移動平均
+
+  # ストップロス
+  stop_loss_ratio: 0.92           # PSL = Pentry x 0.92（-8%）
+
+  # テイクプロフィット
+  take_profit_ratio: 1.20         # PTP = Pentry x 1.20（+20%）
+
+  # トレーリングストップ
+  trailing_stop_enabled: true
+  trailing_stop_ratio: 0.92       # PTS = Pmax x 0.92（-8%）
+  trailing_stop_min_gain: 0.05    # 最小利益 +5% で発動
+
+  # 保有期間
+  max_hold_bars: 60               # 60営業日で全売却
+
+  # ピーク検知
+  peak_detection_volume_ratio: 2.0  # V_t >= 2.0 x V_25 で上ヒゲチェック
+  peak_detection_wick_ratio: 1.0    # 上ヒゲ > 実体 で即売却
+
+  # 足切り
+  cutoff_25days_gain_min: 0.10    # 25日で +10% 未満は売却
+  cutoff_75days_enabled: true     # 75日で全売却
+
+filters:
+  # 時価総額
+  market_cap_min: 100000000000    # 1000億円（日本円）
+
+  # 信用残
+  credit_ratio_max: 5.0           # Credit_Ratio <= 5.0
+  credit_ratio_enabled: true
+
+  # 流動性
+  min_daily_turnover: 200000000   # 2億円以上の売買代金
+
+growth_market:
+  enabled: true
+  screen_top_n: 10
+  update_frequency: "daily"
+
+realtime_monitor:
+  enabled: true
+  check_time: "16:30"
+  notification_enabled: true
+
+dashboard:
+  theme: "light"
+  refresh_interval: 300
+  show_charts: true
+  export_format: "csv"
+
+sbi_integration:
+  enabled: true
+  order_type:
+    - "trail"
+    - "oco"
+  trail_width_percent: 3.0
+
+metrics:
+  calculate_mdd: true
+  calculate_pf: true
+  calculate_sharpe: false
+
+stocks:
+  primary:
+    - "5253.T"   # カバー
+    - "6228.T"   # JET
+    - "5586.T"   # ラボロ
+    - "5242.T"   # アイズ
+    - "5885.T"   # ジーディープ
+    - "4894.T"   # クオリプス
+
+  validation:
+    - "6586.T"   # マキタ（C-SH vs C-NH 検証）
+    - "5803.T"   # フジクラ（C-NH 実績）
+    - "7011.T"   # 三菱重工業（C-NH 実績）
+
+  monitoring:
+    - "153A.T"   # カウリス
+    - "485A.T"   # パワーエックス
+    - "6501.T"   # 日立製作所
+
+logging:
+  level: "INFO"
+  file: "cwh_v30.log"
+  console_output: true
