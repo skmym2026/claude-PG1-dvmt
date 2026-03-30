@@ -1,20 +1,97 @@
-# CWH Configuration for Version 3.0
+# CWH/C-NH Configuration for Version 3.3 (最適化版)
 
 # Date and Time of Configuration
-current_date: "2026-03-29 21:55:11"
+current_date: "2026-03-30"
+version: "3.3"
 
-# Parameter Settings
-parameter_settings:
-  - name: setting_one
-    value: "default_value_one"
-  - name: setting_two
-    value: "default_value_two"
-  - name: setting_three
-    value: "default_value_three"
-  - name: setting_four
-    value: "default_value_four"
-  - name: setting_five
-    value: "default_value_five" 
-  # Add more settings as required
+# ============================================================
+# screener_cwh: カップウィズハンドル スクリーニング設定
+# ============================================================
+screener_cwh:
+  # カップ形状
+  cup_bars_min:           30      # ★修正1: 35 → 30日（品質と検出率の中間値）
+  cup_bars_max:           200     # カップ最大長（営業日）
+  cup_depth_min:          0.15    # カップ深さ最小（15%）
+  cup_depth_max:          0.35    # カップ深さ最大（35%）
 
-# Add additional configurations as necessary.
+  # 事前トレンド
+  prior_trend_min:        0.28    # ★修正2: 0.30 → 0.28（現実的な緩和）
+  prior_trend_bars:       40      # 事前上昇期間（営業日）
+
+  # ハンドル
+  handle_bars_min:        4       # ハンドル最小長（営業日）
+  handle_bars_max:        25      # ハンドル最大長（営業日）
+  handle_depth_min:       0.05    # ハンドル深さ最小（5%）
+  handle_depth_max:       0.15    # ハンドル深さ最大（15%）
+
+  # 対称性
+  rim_symmetry_max:       0.15    # リム対称性最大偏差
+
+  # 出来高
+  bo_volume_ratio:        1.5     # BO出来高倍率（20日平均比）
+
+# ============================================================
+# screener_cnh: カップ・ノーハンドル スクリーニング設定
+# ============================================================
+screener_cnh:
+  # カップ形状
+  cup_bars_min:           20      # C-NH カップ最小長
+  cup_bars_max:           200     # カップ最大長
+  cup_depth_min:          0.15    # カップ深さ最小（15%）
+  cup_depth_max:          0.40    # カップ深さ最大（40%、CWHより緩和）
+
+  # 事前トレンド
+  prior_trend_min:        0.20    # C-NH 事前上昇最小（CWHより緩和）
+  prior_trend_bars:       60      # 事前上昇期間
+
+  # C-NH 判定
+  handle_bars_max:        3       # ハンドルなし判定（3営業日以下）
+
+  # 対称性
+  rim_symmetry_max:       0.15    # リム対称性最大偏差
+
+  # 出来高
+  bo_volume_ratio:        1.3     # BO出来高倍率（C-NHは緩和）
+
+# ============================================================
+# trade: トレード実行・出口パラメータ（v3.3）
+# ============================================================
+trade:
+  # エントリー
+  stop_loss_ratio:              0.92    # ストップロス（エントリー比 -8%）
+
+  # 分割利確
+  take_profit_ratio_1:          1.15    # TP1（+15%、50%売却）
+  take_profit_qty_1:            0.50    # TP1 売却比率（50%）
+  take_profit_ratio_2:          1.28    # TP2（+28%、残り全売却）
+
+  # 保有期間・トレーリングストップ
+  max_hold_bars:                90      # ★修正4: 120 → 90日（長期保有リスク低減）
+  trailing_stop_ratio:          0.92    # TS比率（P_max × 0.92）
+  trailing_stop_min_gain:       0.15    # ★修正3: 0.05 → 0.15（TP1到達後のみ発動）
+
+  # 出口優先順序: SL > TS > TP2 > EoP
+  exit_priority:
+    - "SL"
+    - "TS"
+    - "TP2"
+    - "EoP"
+
+# ============================================================
+# filters: 銘柄フィルター
+# ============================================================
+filters:
+  market_cap_min:         100000000000  # 時価総額最小（1,000億円）
+  credit_ratio_max:       5.0           # 信用倍率最大
+  liquidity_min:          200000000     # 1日売買代金最小（2億円）
+
+# ============================================================
+# data: データソース設定
+# ============================================================
+data:
+  source:                 "yfinance"    # データソース
+  market_suffix:          ".T"          # 東証銘柄サフィックス
+  backtest_start:         "2020-01-01"
+  backtest_end:           "2026-03-29"
+  vol_ma_period:          20            # 出来高移動平均期間
+  price_ma_period:        50            # 価格移動平均期間
