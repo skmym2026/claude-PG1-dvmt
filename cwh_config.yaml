@@ -1,20 +1,66 @@
-# CWH Configuration for Version 3.0
+# CWH Configuration for Version 3.3
+# v3.1変更: max_hold_bars: 120, rim_symmetry_max: 0.15, 分割TP導入, yfinance切替
+# v3.2変更: 東証3市場対応, Tier分類追加
+# v3.3変更: スクリーニング精度向上, 出口判定強化
 
-# Date and Time of Configuration
-current_date: "2026-03-29 21:55:11"
+# 現在日時 (設定ファイル生成日)
+current_date: "2026-03-31"
 
-# Parameter Settings
-parameter_settings:
-  - name: setting_one
-    value: "default_value_one"
-  - name: setting_two
-    value: "default_value_two"
-  - name: setting_three
-    value: "default_value_three"
-  - name: setting_four
-    value: "default_value_four"
-  - name: setting_five
-    value: "default_value_five" 
-  # Add more settings as required
+# カップ形状パラメータ
+cup_shape:
+  cup_min_bars: 30          # カップ最小期間 (営業日)
+  cup_max_bars: 150         # カップ最大期間 (営業日)
+  cup_depth_min: 0.10       # カップ深さ最小 (10%)
+  cup_depth_max: 0.50       # カップ深さ最大 (50%)
+  rim_symmetry_max: 0.15    # 左右リム高さ差の許容率 (v3.1: 0.12→0.15)
 
-# Add additional configurations as necessary.
+# ハンドルパラメータ
+handle:
+  handle_min_bars: 5        # ハンドル最小期間 (営業日)
+  handle_max_bars: 30       # ハンドル最大期間 (営業日)
+  handle_depth_max: 0.12    # ハンドル深さ最大
+  handle_position_min: 0.50 # ハンドル位置最小 (カップ高の50%以上)
+  handle_drift_max: 0.05    # ハンドル上昇ドリフト許容率
+
+# 移動平均・トレンド
+trend:
+  ma_short: 10              # 短期移動平均 (日)
+  ma_medium: 50             # 中期移動平均 (日)
+  ma_long: 200              # 長期移動平均 (日)
+  trend_slope_min: 0.0      # トレンド傾き最小値
+  ma_alignment_required: true
+
+# 出来高パラメータ
+volume:
+  volume_ma_period: 50      # 出来高移動平均期間
+  volume_bo_ratio_min: 1.5  # BO時の出来高倍率最小 (r_bo)
+  volume_handle_ratio_max: 0.8
+  volume_dry_up: true       # ハンドルでの出来高枯渇チェック
+
+# トレード実行パラメータ
+trade:
+  entry_bo_pct: 0.01        # BO認定の価格上昇率 (+1%)
+  tp1_ratio: 1.15           # 第1利確目標 (+15%) — 50%売却
+  tp2_ratio: 1.28           # 第2利確目標 (+28%) — 残50%売却
+  sl_ratio: 0.92            # ストップロス (-8%)
+  trailing_stop_pct: 0.05   # トレイリングストップ幅 (5%)
+
+# ポジション・時間軸
+position:
+  max_hold_bars: 120        # 最大保有期間 (営業日) (v3.1: 60→120)
+  tp1_sell_ratio: 0.50      # TP1到達時の売却比率
+  position_size_tier1: 0.10 # Tier I ポジションサイズ
+  position_size_tier2: 0.07 # Tier II ポジションサイズ
+
+# フィルター
+filter:
+  min_market_cap_bn: 100    # 最小時価総額 (億円)
+  min_liquidity_bn: 2.0     # 最小流動性 (億円/日)
+  min_data_bars: 100        # スクリーニングに必要な最小データ数
+  score_threshold: 60       # スクリーニング通過最小スコア
+
+# Tier スコア閾値
+tier:
+  tier1_score: 90           # Tier I  (スコア >= 90)
+  tier2_score: 80           # Tier II (スコア >= 80)
+  tier3_score: 70           # Tier III(スコア >= 70)
