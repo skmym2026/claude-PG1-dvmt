@@ -93,10 +93,13 @@ def main() -> None:
     # 銘柄別パフォーマンス
     st.subheader("銘柄別パフォーマンス")
     if "ticker" in results_df.columns:
+        def _win_rate(x: pd.Series) -> float:
+            return (x > 0).mean() * 100
+
         summary = (
             results_df.groupby("ticker")["pnl_pct"]
-            .agg(["count", "mean", lambda x: (x > 0).mean() * 100])
-            .rename(columns={"count": "トレード数", "mean": "平均損益率[%]", "<lambda_0>": "勝率[%]"})
+            .agg(count="count", mean="mean", win_rate=_win_rate)
+            .rename(columns={"count": "トレード数", "mean": "平均損益率[%]", "win_rate": "勝率[%]"})
         )
         st.dataframe(summary)
 

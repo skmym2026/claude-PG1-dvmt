@@ -14,6 +14,7 @@ import sys
 import yaml
 
 from cwh_backtest_engine import export_trades_csv, run_backtest_all
+from cwh_chart_generator import generate_all_charts
 from cwh_performance_metrics import compute_metrics
 from cwh_realtime_monitor import run_daily_monitor
 from cwh_sbi_order_generator import generate_orders_bulk, print_orders
@@ -104,6 +105,14 @@ def main() -> None:
 
     # CSV 出力
     export_trades_csv(all_results, "backtest_results.csv")
+
+    # チャート生成
+    logger.info("チャート生成開始")
+    generated_charts = generate_all_charts(all_results, output_dir="charts")
+    if generated_charts:
+        print(f"\n📊 生成チャート ({len(generated_charts)} 件):")
+        for p in generated_charts:
+            print(f"  {p}")
 
     # SBI 注文生成（最新トレードのエントリー価格を使用）
     entry_list: list[tuple[str, float]] = []

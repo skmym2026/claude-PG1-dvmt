@@ -51,6 +51,10 @@ screener:
   breakout_volume_ratio: 1.5      # V(PV) >= 1.5 x V_20
   breakout_volume_period: 20      # 20営業日移動平均
 
+  # 局所高値検出ウィンドウ（PL 候補の絞り込み）
+  local_high_window: 5            # 左右それぞれ 5 バーで局所高値を判定
+  cup_search_range: 120           # PL から BC を探す最大バー数
+
 patterns:
   # C-NH（ハンドル無し）
   c_nh_handle_bars_max: 3         # N_handle < 4 のものを C-NH と判定
