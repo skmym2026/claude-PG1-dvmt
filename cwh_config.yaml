@@ -1,20 +1,65 @@
-# CWH Configuration for Version 3.0
+# CWH / C-NH 統合設定ファイル — v3.1
 
-# Date and Time of Configuration
-current_date: "2026-03-29 21:55:11"
+version: "3.1"
 
-# Parameter Settings
-parameter_settings:
-  - name: setting_one
-    value: "default_value_one"
-  - name: setting_two
-    value: "default_value_two"
-  - name: setting_three
-    value: "default_value_three"
-  - name: setting_four
-    value: "default_value_four"
-  - name: setting_five
-    value: "default_value_five" 
-  # Add more settings as required
+# ===== CWH (Cup with Handle) パラメータ =====
+cwh:
+  # カップの深さ: [最小, 最大]（例: 15%〜35%）
+  cup_depth_min: 0.15
+  cup_depth_max: 0.35
+  # カップの期間（営業日）
+  cup_bars_min: 20
+  cup_bars_max: 60
+  # ハンドルの深さ（カップ深さの最大50%）
+  handle_depth_max: 0.50
+  # ハンドルの期間（営業日）
+  handle_bars_max: 20
+  # リム対称性の許容誤差（CWH: 0.15維持）
+  rim_symmetry_max: 0.15
+  # ブレイクアウト閾値（ピボット価格の1.03倍）
+  breakout_multiplier: 1.03
+  # ブレイクアウト時の最低出来高比率（25日平均の1.5倍）
+  breakout_volume_ratio: 1.5
 
-# Add additional configurations as necessary.
+# ===== C-NH (Cup with No Handle) パラメータ =====
+cnh:
+  # カップの深さ: [最小, 最大]
+  cup_depth_min: 0.15
+  cup_depth_max: 0.40
+  # カップの期間（営業日）
+  cup_bars_min: 20
+  cup_bars_max: 60
+  # ハンドル期間の上限（4営業日未満 = ノーハンドル）
+  handle_bars_max: 3
+  # リム対称性の許容誤差（v3.1で0.12 → 0.15に緩和、検出率向上）
+  rim_symmetry_max: 0.15
+  # ブレイクアウト閾値
+  breakout_multiplier: 1.03
+  # ブレイクアウト時の最低出来高比率
+  breakout_volume_ratio: 1.5
+
+# ===== 出口戦略パラメータ =====
+exit:
+  # ストップロス（-8%）
+  stop_loss: 0.92
+  # TP1: 分割利確1段目（+15%、50%売却）
+  tp1_ratio: 1.15
+  tp1_sell_pct: 0.50
+  # TP2: 分割利確2段目（+28%、残50%売却）
+  tp2_ratio: 1.28
+  tp2_sell_pct: 1.00
+  # トレーリングストップ（最高値の-8%）
+  trailing_stop_ratio: 0.92
+  # トレーリングストップ発動の最低利益（+5%）
+  trailing_stop_min_gain: 1.05
+
+# ===== バックテスト共通パラメータ =====
+# 最大保有期間（営業日）: v3.1で60 → 120に延長（TP +28% 到達率向上）
+max_hold_bars: 120
+
+# データソース（yfinance 実データ使用）
+data_source: "yfinance"
+
+# バックテスト期間
+backtest_start: "2020-01-01"
+backtest_end: "2026-03-29"
